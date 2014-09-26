@@ -63,7 +63,7 @@ var port = config.port;
  */
 
 if(config.cluster.enable && cluster.isMaster){
-    console.log('Master start up. Processes number: '+ processNum + ' port: ' + port + ' max crawler number: ' + config.server.max_crawler_num);
+    console.log('Master start up. Processes number: '+ processNum + ' port: ' + port);
     for(var i = 0; i< processNum; i++){
         cluster.fork()
     }
