@@ -6,6 +6,7 @@ var http = require('http')
 var cluster = require('cluster')
 var express = require('express')
 var debug = require('debug')('expressway')
+var socketio = require('socket.io');
 
 /**
  * Load app routes and configures.
@@ -87,8 +88,23 @@ if(config.cluster.enable && cluster.isMaster){
         console.log('Process start up. ');
     }
 
-    http.createServer(app)
+    var server = http.createServer(app)
         .listen(port, function(){
             console.log('worker pid:' + process.pid + ' '+config.appname+" server listening on port " + port, new Date());
         });
+    
+    io = socketio(server).on('connection', function(socket){
+        console.log('connection')
+        setInterval(function(){
+            var data ="{}";
+            console.log('send data');
+            io.emit('message', data)
+        }, 5000);
+
+        socket.on('disconnect', function () {
+            socket.emit('test end', {
+                msg: 'test end'
+            });
+        });
+    })
 }
