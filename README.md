@@ -1,7 +1,7 @@
 expressway
 ==========
 
-  A Node.js webserver framwork which base on express, but more than express.
+Expressway is a node.js framework based on express. Our goal is to build the best industrial node.js framework for high concurrency and high flow application.
 
 ## Features
 
