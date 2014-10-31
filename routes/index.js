@@ -1,9 +1,9 @@
 /**
  * App routes
  */
-var express = require('express')
-var router = express.Router();
-router.use('/message', function(req, res, next) {
-      res.send('Hello World');
-})
-module.exports = router;
+
+module.exports = {
+    'demo': require('./demo'),
+}
+
+/* vim: set expandtab ts=4 sw=4 sts=4 tw=100: */

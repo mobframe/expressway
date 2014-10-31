@@ -4,43 +4,15 @@
 
 var http = require('http')
 var cluster = require('cluster')
-var express = require('express')
-var debug = require('debug')('expressway')
-var socketio = require('socket.io');
+//var debug = require('debug')('expressway')
 
 /**
- * Load app routes and configures.
+ * Load app configures.
  */
 
-var routes = require('./routes')
 var config = require('./conf')
 
-/**
- * Load middleware
- */
-var bodyParser = require('body-parser')
-var timeout = require('connect-timeout')
-var logger = require('morgan')
-/**
- * Create app.
- */
-
-var app = express()
-
-app.set('env', config.env)
-    .set('port', config.server.port)
-    .disable('x-powered-by')
-    //.use(require('serve-favicon')(config.favicon_path)(req, res, function(err){
-    //    if (err) return require('finalhandler')(err);
-    //    res.statusCode = 404;
-    //    res.end();
-    //}))
-    .use(bodyParser.json()) // create application/json parser
-    .use(bodyParser.urlencoded({ extended: true })) // create application/x-www-form-urlencoded parser
-    .use(express.static(config.static_dir))
-    .use(routes)
-    .use(timeout(config.server.timeout))
-    .use(logger(config.log_format))
+var app = require('./app/index.js')
 
 /**
  * Set configures.
@@ -48,7 +20,6 @@ app.set('env', config.env)
 
 //Set condition of opening debug mode 
 if(config.env == 'development'){
-    app.use(logger('dev'))
     config.cluster.workerNum = 1
 }
 
@@ -87,24 +58,9 @@ if(config.cluster.enable && cluster.isMaster){
     }else{
         console.log('Process start up. ');
     }
-
     var server = http.createServer(app)
         .listen(port, function(){
             console.log('worker pid:' + process.pid + ' '+config.appname+" server listening on port " + port, new Date());
         });
-    
-    io = socketio(server).on('connection', function(socket){
-        console.log('connection')
-        setInterval(function(){
-            var data ="{}";
-            console.log('send data');
-            io.emit('message', data)
-        }, 5000);
-
-        socket.on('disconnect', function () {
-            socket.emit('test end', {
-                msg: 'test end'
-            });
-        });
-    })
 }
+/* vim: set expandtab ts=4 sw=4 sts=4 tw=100: */

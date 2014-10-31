@@ -5,6 +5,7 @@ Expressway is a node.js framework based on express. Our goal is to build the bes
 
 ## Features
 
+  * Loose Coupling
   * Focus on large application architecture.
 
 ### Installation
