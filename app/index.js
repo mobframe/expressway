@@ -32,7 +32,7 @@ app.set('env', config.env)
     .use(bodyParser.json()) // create application/json parser
     .use(bodyParser.urlencoded({ extended: true })) // create application/x-www-form-urlencoded parser
     .use(express.static(config.static_dir))
-    .use(routes.demo) //@TODO
+    .use(routes)
     .use(timeout(config.server.timeout))
     .use(logger(config.log_format))
 
