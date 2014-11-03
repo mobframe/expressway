@@ -1,10 +1,7 @@
-/**
- * App routes
- */
-
 var actions = require('../app/demo/actions')
-module.exports = require('express').Router()
-    .get('/demo', actions.demo)
+module.exports = function(route){ 
+    route.get('/demo', actions.demo)
+}
     /*
     .use('/demo', function(req, res, next) {
 
