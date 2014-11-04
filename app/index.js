@@ -4,10 +4,11 @@
 
 var config = require('../conf')
 var path = require('path')
+var eboot = require('eboot')
 /*
  * load app routes
  */
-var routes = require('../routes')
+//var routes = require('../routes')
 
 /**
  * Load middleware
@@ -32,7 +33,7 @@ app.set('env', config.env)
     .use(bodyParser.json()) // create application/json parser
     .use(bodyParser.urlencoded({ extended: true })) // create application/x-www-form-urlencoded parser
     .use(express.static(config.static_dir))
-    .use(routes)
+    .use(eboot(app))
     .use(timeout(config.server.timeout))
     .use(logger(config.log_format))
 
