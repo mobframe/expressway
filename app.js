@@ -1,66 +1,47 @@
 /**
- * App dependencies.
- */
-
-var http = require('http')
-var cluster = require('cluster')
-//var debug = require('debug')('expressway')
-
-/**
  * Load app configures.
  */
 
 var config = require('./conf')
+var path = require('path')
 
-var app = require('./app/index.js')
+/*
+ * load app routes
+ */
+
+var controllers = require('./controllers')
 
 /**
- * Set configures.
+ * Load middleware
  */
+
+var bodyParser = require('body-parser')
+var timeout = require('connect-timeout')
+var logger = require('morgan')
+
+/**
+ * Create app.
+ */
+
+var express = require('express')
+var app = express()
+
+app.set('env', config.env)
+    .set('port', config.server.port)
+    .set('view engine', 'ejs')
+    .set('views', path.join(__dirname, '../template'))
+    .engine('html', require('ejs').renderFile)
+    .disable('x-powered-by')
+    .use(bodyParser.json()) // create application/json parser
+    .use(bodyParser.urlencoded({ extended: true })) // create application/x-www-form-urlencoded parser
+    .use(express.static(config.static_dir))
+    .use(controllers)
+    .use(timeout(config.server.timeout))
+    .use(logger(config.log_format))
 
 //Set condition of opening debug mode 
 if(config.env == 'development'){
-    config.cluster.workerNum = 1
+    app.use(logger('dev'))
 }
 
-if(typeof config.global.httpAgentMaxSocks == 'number'){
-    http.globalAgent.maxSockets = config.global.httpAgentMaxSocks
-}
-
-var processNum = config.cluster.workerNum ? config.cluster.workerNum: require('os').cpus().length
-var port = config.port;
-
-/**
- * Start Server.
- */
-
-if(config.cluster.enable && cluster.isMaster){
-    console.log('Master start up. Processes number: '+ processNum + ' port: ' + port);
-    for(var i = 0; i< processNum; i++){
-        cluster.fork()
-    }
-    cluster.on('exit', function(worker, code, signal){ //if app exits, restart it.
-        var exit_message = 'worker pid:'+worker.process.pid+' exit at '+ new Date()+' code:'+code+' signal:'+signal;
-        cluster.fork()
-    });
-    cluster.on('online', function(worker) {
-        var online_message = 'worker pid:' + worker.process.pid + ' online at ' + new Date();
-        console.log(online_message);
-    });
-    cluster.on('listening', function(worker, address) {
-        var listen_message = 'worker pid:' + worker.process.pid + ' listen at port:'+ address.port +' '+ new Date();
-        console.log(listen_message);
-    });
-}else{
-    console.log('App start up.')
-    if (!config.cluster.enable){
-        console.log('Single process run.');
-    }else{
-        console.log('Process start up. ');
-    }
-    var server = http.createServer(app)
-        .listen(port, function(){
-            console.log('worker pid:' + process.pid + ' '+config.appname+" server listening on port " + port, new Date());
-        });
-}
-/* vim: set expandtab ts=4 sw=4 sts=4 tw=100: */
+module.exports = app;
